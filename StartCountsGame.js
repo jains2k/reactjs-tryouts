@@ -102,6 +102,9 @@ const DoneFrame = (props) => {
 	return (
   	<div className="text-center">
     	<h2>{props.doneStatus}</h2>
+      <button className="btn btn-secondary" onClick={props.resetGame}>
+      	Play Again
+      </button>
     </div>
   )
 }
@@ -110,13 +113,18 @@ class Game extends React.Component {
 	static generateRandomNumber = () => {
   	return 1 + Math.floor(Math.random()*9);
   }
-	state = {
+  static initialState = () => ({
   	selectedNumbers: [],
     numberOfStars : Game.generateRandomNumber(),
     isAnswerCorrect: null,
     usedNumbers: [],
     redrawsRemaining: 3,
     doneStatus: null
+  })
+	
+  state= Game.initialState()
+  resetGame = () => {
+  	this.setState(Game.initialState());
   }
   
   clickNumber = (clickedNumber) => {
@@ -163,8 +171,8 @@ class Game extends React.Component {
   
   noSolutionsRemaining = ({numberOfStars, usedNumbers}) => {
   	const possibleNumbers = _.range(1, 10).filter((number) => usedNumbers.indexOf(number) === -1)
-    
-    return !possibleCombinationSum(possibleNumber, numberOfStars);
+    console.log(possibleNumbers.length)
+    return !possibleCombinationSum(possibleNumbers, numberOfStars);
   
   }
   updateDoneStatus = () => {
@@ -172,7 +180,7 @@ class Game extends React.Component {
     	if (prevState.usedNumbers.length === 9) {
       	return {doneStatus: 'Done, nice!'}
       }
-      if (prevState.redrawsRemainig === 0 && this.noSolutionsRemaining(prevState)) {
+      if (prevState.redrawsRemaining === 0 && this.noSolutionsRemaining(prevState)) {
       	return {doneStatus: 'Game over!'}
       }
     })
@@ -202,7 +210,7 @@ class Game extends React.Component {
         </div>
         <br />
         {doneStatus? 
-        <DoneFrame doneStatus={doneStatus}/>:
+        <DoneFrame doneStatus={doneStatus} resetGame={this.resetGame}/>:
 
         <Numbers selectedNumbers={selectedNumbers} usedNumbers={usedNumbers}
         	selectNumber={this.clickNumber}/>
